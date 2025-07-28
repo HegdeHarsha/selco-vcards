@@ -3,210 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SELCO VCards - Virtual Business Cards</title>
+    <title>SELCO VCard System</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.5.0/dist/easy.qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/easy-qrcodejs/4.4.13/easy.qrcode.min.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <h1>SELCO VCards</h1>
-                    <p>Virtual Business Cards System</p>
-                </div>
-                <nav class="nav">
-                    <button id="adminBtn" class="btn btn--outline">Admin Dashboard</button>
-                    <button id="employeeListBtn" class="btn btn--outline">Employee Directory</button>
-                </nav>
-            </div>
+
+    <div id="app-container">
+        <!-- This view is shown if a specific employee ID is in the URL -->
+        <div id="vcard-view" class="view">
+            <!-- Employee vCard will be injected here by JavaScript -->
         </div>
-    </header>
 
-    <!-- Admin Dashboard View -->
-    <main id="adminView" class="view active">
-        <div class="container">
-            <section class="admin-section">
-                <div class="card">
-                    <div class="card__header">
-                        <h2>IT Admin Dashboard</h2>
-                        <p class="color-text-secondary">Upload and manage employee data</p>
-                    </div>
-                    <div class="card__body">
-                        <!-- File Upload Section -->
-                        <div class="upload-section">
-                            <h3>Upload Employee Data</h3>
-                            <div class="file-upload">
-                                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="file-input">
-                                <label for="fileInput" class="file-label">
-                                    <span class="upload-icon">📁</span>
-                                    <span>Choose Excel/CSV file</span>
-                                </label>
-                                <p class="upload-help">Support for .xlsx, .xls, and .csv files</p>
-                            </div>
-                        </div>
-
-                        <!-- Data Preview Section -->
-                        <div id="previewSection" class="preview-section hidden">
-                            <h3>Data Preview</h3>
-                            <div class="preview-stats">
-                                <span id="employeeCount" class="stat">0 employees found</span>
-                            </div>
-                            <div class="preview-table-container">
-                                <table id="previewTable" class="preview-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Designation</th>
-                                            <th>Phone</th>
-                                            <th>Email</th>
-                                            <th>Address</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                            <div class="preview-actions">
-                                <button id="generateQRBtn" class="btn btn--primary">Generate QR Codes</button>
-                                <button id="clearDataBtn" class="btn btn--outline">Clear Data</button>
-                            </div>
-                        </div>
-
-                        <!-- QR Code Management Section -->
-                        <div id="qrSection" class="qr-section hidden">
-                            <h3>QR Code Management</h3>
-                            <div class="qr-actions">
-                                <button id="downloadAllQRBtn" class="btn btn--primary">Download All QR Codes</button>
-                                <button id="viewQRCodesBtn" class="btn btn--secondary">View Generated QR Codes</button>
-                            </div>
-                        </div>
-                    </div>
+        <!-- This view is shown for the IT Admin by default -->
+        <div id="admin-view" class="view">
+            <header>
+                <img src="https://www.selco-india.com/wp-content/uploads/2022/09/logo.svg" alt="SELCO Logo" class="logo">
+                <h1>VCard Management Dashboard</h1>
+            </header>
+            
+            <section id="upload-section">
+                <h2>1. Upload Employee Data</h2>
+                <p>Upload the `employees.xlsx` file. Columns must be: Name, Designation, Phone Number, Email Id, Address, Photo.</p>
+                <input type="file" id="excel-file" accept=".xlsx, .xls">
+            </section>
+            
+            <section id="employee-directory-section">
+                <h2>2. Employee Directory</h2>
+                <div id="employee-list">
+                    <p>Upload a file to see the employee list.</p>
                 </div>
             </section>
 
-            <!-- QR Codes Display -->
-            <section id="qrDisplaySection" class="qr-display-section hidden">
-                <div class="card">
-                    <div class="card__header">
-                        <h3>Generated QR Codes</h3>
-                    </div>
-                    <div class="card__body">
-                        <div id="qrCodesGrid" class="qr-grid"></div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Employee List View -->
-    <main id="employeeListView" class="view">
-        <div class="container">
-            <section class="employee-list-section">
-                <div class="card">
-                    <div class="card__header">
-                        <h2>Employee Directory</h2>
-                        <p class="color-text-secondary">Browse all employee profiles</p>
-                    </div>
-                    <div class="card__body">
-                        <div id="employeeGrid" class="employee-grid"></div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Employee Profile View -->
-    <main id="profileView" class="view">
-        <div class="container">
-            <section class="profile-section">
-                <div class="profile-card card">
-                    <div class="profile-header">
-                        <div class="profile-photo">
-                            <img id="profilePhoto" src="" alt="Employee Photo">
-                        </div>
-                        <div class="profile-info">
-                            <h1 id="profileName"></h1>
-                            <p id="profileDesignation" class="designation"></p>
-                        </div>
-                    </div>
-                    
-                    <div class="profile-content">
-                        <div class="contact-info">
-                            <h3>Contact Information</h3>
-                            <div class="contact-item">
-                                <span class="contact-label">Phone:</span>
-                                <span id="profilePhone" class="contact-value"></span>
-                            </div>
-                            <div class="contact-item">
-                                <span class="contact-label">Email:</span>
-                                <span id="profileEmail" class="contact-value"></span>
-                            </div>
-                            <div class="contact-item">
-                                <span class="contact-label">Address:</span>
-                                <span id="profileAddress" class="contact-value"></span>
-                            </div>
-                        </div>
-
-                        <div class="company-info">
-                            <h3>Company Information</h3>
-                            <div class="contact-item">
-                                <span class="contact-label">Company:</span>
-                                <span class="contact-value">SELCO Solar Light Private Limited</span>
-                            </div>
-                            <div class="contact-item">
-                                <span class="contact-label">Website:</span>
-                                <a href="http://www.selco-india.com" target="_blank" class="contact-value">www.selco-india.com</a>
-                            </div>
-                            <div class="contact-item">
-                                <span class="contact-label">Company Email:</span>
-                                <a href="mailto:selco@selco-india.com" class="contact-value">selco@selco-india.com</a>
-                            </div>
-                        </div>
-
-                        <div class="qr-section">
-                            <h3>QR Code</h3>
-                            <div id="profileQRCode" class="qr-display"></div>
-                        </div>
-
-                        <div class="profile-actions">
-                            <button id="saveContactBtn" class="btn btn--primary btn--lg">
-                                💾 Save to Contacts
-                            </button>
-                            <button id="backToListBtn" class="btn btn--outline">
-                                ← Back to Directory
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Loading Indicator -->
-    <div id="loadingIndicator" class="loading-indicator hidden">
-        <div class="loading-spinner"></div>
-        <p>Processing...</p>
-    </div>
-
-    <!-- Modal for Error Messages -->
-    <div id="errorModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Error</h3>
-                <button id="closeModal" class="modal-close">×</button>
-            </div>
-            <div class="modal-body">
-                <p id="errorMessage"></p>
-            </div>
-            <div class="modal-footer">
-                <button id="errorOkBtn" class="btn btn--primary">OK</button>
-            </div>
+             <footer>
+                <p>SELCO Solar Light Private Limited</p>
+            </footer>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
