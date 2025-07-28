@@ -3,54 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SELCO VCard System</title>
+    <title>SELCO VCards - Employee Contact Manager</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/easy-qrcodejs/4.4.13/easy.qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
 </head>
 <body>
-
-    <div id="app-container">
-        <!-- Visitor vCard View -->
-        <div id="vcard-view" class="view">
-            <!-- Content is injected by JavaScript -->
-        </div>
-
-        <!-- Admin Dashboard View -->
-        <div id="admin-view" class="view">
-            <header>
-                <img src="https://www.selco-india.com/wp-content/uploads/2022/09/logo.svg" alt="SELCO Logo" class="logo">
-                <h1>VCard Management Dashboard</h1>
-            </header>
-            
-            <section id="upload-section">
-                <h2>1. Upload Employee Data</h2>
-                <p>Upload the `employees.xlsx` file to generate the directory and the necessary data file.</p>
-                <input type="file" id="excel-file" accept=".xlsx, .xls">
-            </section>
-
-            <section id="download-data-section" style="display:none;">
-                <h2>2. Download Data File</h2>
-                <p><strong>Crucial Step:</strong> Download this data file. You must add it to your project in VS Code and push the update to GitHub for the public links to work.</p>
-                <a id="download-data-btn" class="button">Download employees-data.js</a>
-            </section>
-            
-            <section id="employee-directory-section">
-                <h2>3. Employee Directory</h2>
-                <div id="employee-list">
-                    <p>Upload a file to see the employee list.</p>
+    <!-- Main Application -->
+    <div id="main-app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo-section">
+                        <img src="https://www.selco-india.com/wp-content/uploads/2022/09/logo.svg" alt="SELCO Logo" class="logo">
+                        <div class="company-info">
+                            <h1>SELCO VCards</h1>
+                            <p>Employee Contact Manager</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button id="clear-data-btn" class="btn btn--outline btn--sm hidden">Clear All Data</button>
+                    </div>
                 </div>
-            </section>
+            </div>
+        </header>
 
-             <footer>
-                <p>SELCO Solar Light Private Limited</p>
-            </footer>
+        <!-- Upload Section -->
+        <section id="upload-section" class="upload-section">
+            <div class="container">
+                <div class="upload-container">
+                    <div class="upload-header">
+                        <h2>Upload Employee Data</h2>
+                        <p>Upload your Excel/CSV file to generate VCards automatically</p>
+                    </div>
+                    
+                    <div class="file-upload-area" id="file-upload-area">
+                        <div class="upload-icon">📁</div>
+                        <p class="upload-text">
+                            <span class="upload-main">Drag & drop your Excel/CSV file here</span>
+                            <span class="upload-sub">or click to browse</span>
+                        </p>
+                        <input type="file" id="file-input" accept=".xlsx,.xls,.csv" class="file-input">
+                    </div>
+
+                    <div class="upload-info">
+                        <p><strong>Expected columns:</strong> Name, Designation, Phone Number, Email Id, Address, Photo</p>
+                        <p><strong>Supported formats:</strong> .xlsx, .xls, .csv</p>
+                    </div>
+
+                    <!-- Processing Indicator -->
+                    <div id="processing-indicator" class="processing-indicator hidden">
+                        <div class="spinner"></div>
+                        <p>Processing your file...</p>
+                    </div>
+
+                    <!-- Error Display -->
+                    <div id="error-display" class="error-display hidden">
+                        <div class="status status--error">
+                            <span id="error-message">Error processing file</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Employee Directory -->
+        <section id="employee-directory" class="employee-directory hidden">
+            <div class="container">
+                <div class="directory-header">
+                    <h2>Employee Directory</h2>
+                    <div class="directory-actions">
+                        <button id="generate-all-qr" class="btn btn--primary">Generate All QR Codes</button>
+                        <button id="upload-new-file" class="btn btn--outline">Upload New File</button>
+                    </div>
+                </div>
+                
+                <div id="employee-grid" class="employee-grid">
+                    <!-- Employee cards will be inserted here -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Individual Employee VCard Page -->
+    <div id="employee-vcard" class="employee-vcard hidden">
+        <div class="vcard-container">
+            <div class="vcard-content">
+                <div class="employee-photo-container">
+                    <img id="vcard-photo" src="" alt="Employee Photo" class="employee-photo">
+                </div>
+                
+                <div class="employee-details">
+                    <h1 id="vcard-name" class="employee-name"></h1>
+                    <p id="vcard-designation" class="employee-designation"></p>
+                    
+                    <div class="company-info">
+                        <h3>SELCO Solar Light Private Limited</h3>
+                        <div class="company-contacts">
+                            <p><span class="label">Website:</span> www.selco-india.com</p>
+                            <p><span class="label">Email:</span> selco@selco-india.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <span class="label">Phone:</span>
+                            <span id="vcard-phone"></span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="label">Email:</span>
+                            <span id="vcard-email"></span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="label">Address:</span>
+                            <span id="vcard-address"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="vcard-actions">
+                        <button id="save-contact-btn" class="btn btn--primary btn--lg btn--full-width">
+                            💾 Save to Contacts
+                        </button>
+                        <button id="back-to-directory-btn" class="btn btn--outline btn--lg btn--full-width">
+                            ← Back to Directory
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- The data file must be loaded BEFORE the application script -->
-    <script src="employees-data.js"></script>
-    <script src="app.js"></script>
+    <!-- QR Code Modal -->
+    <div id="qr-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="qr-modal-title">QR Code</h3>
+                <button id="close-qr-modal" class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="qr-code-container" class="qr-code-container"></div>
+                <div class="qr-info">
+                    <p><strong>Shareable Link:</strong></p>
+                    <input type="text" id="shareable-link" class="form-control" readonly>
+                </div>
+                <div class="qr-actions">
+                    <button id="download-qr-btn" class="btn btn--primary">Download QR Code</button>
+                    <button id="copy-link-btn" class="btn btn--outline">Copy Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script src="app.js"></script>
 </body>
 </html>
