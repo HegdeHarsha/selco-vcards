@@ -11,12 +11,12 @@
 <body>
 
     <div id="app-container">
-        <!-- This view is shown if a specific employee ID is in the URL -->
+        <!-- Visitor vCard View -->
         <div id="vcard-view" class="view">
-            <!-- Employee vCard will be injected here by JavaScript -->
+            <!-- Content is injected by JavaScript -->
         </div>
 
-        <!-- This view is shown for the IT Admin by default -->
+        <!-- Admin Dashboard View -->
         <div id="admin-view" class="view">
             <header>
                 <img src="https://www.selco-india.com/wp-content/uploads/2022/09/logo.svg" alt="SELCO Logo" class="logo">
@@ -25,12 +25,18 @@
             
             <section id="upload-section">
                 <h2>1. Upload Employee Data</h2>
-                <p>Upload the `employees.xlsx` file. Columns must be: Name, Designation, Phone Number, Email Id, Address, Photo.</p>
+                <p>Upload the `employees.xlsx` file to generate the directory and the necessary data file.</p>
                 <input type="file" id="excel-file" accept=".xlsx, .xls">
+            </section>
+
+            <section id="download-data-section" style="display:none;">
+                <h2>2. Download Data File</h2>
+                <p>Your employee data has been processed. Download the `employees-data.js` file. You must add this file to your project in VS Code and push the update to GitHub for the public links to work.</p>
+                <a id="download-data-btn" class="button">Download employees-data.js</a>
             </section>
             
             <section id="employee-directory-section">
-                <h2>2. Employee Directory</h2>
+                <h2>3. Employee Directory</h2>
                 <div id="employee-list">
                     <p>Upload a file to see the employee list.</p>
                 </div>
@@ -42,6 +48,9 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- This script now holds the data. It must be loaded before the main app script. -->
+    <script src="employees-data.js"></script>
+    <script src="app.js"></script>
+
 </body>
 </html>
