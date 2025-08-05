@@ -43,6 +43,8 @@ function PublicVCardPage() {
 
     if ("contacts" in navigator && "ContactsManager" in window) {
       setNativeSupported(true);
+    } else {
+      console.log("Native contact save NOT supported.");
     }
   }, [email]);
 
@@ -58,7 +60,10 @@ function PublicVCardPage() {
   };
 
   const handleSaveNativeContact = async () => {
-    if (!employee || !nativeSupported) return;
+    if (!employee || !nativeSupported) {
+      alert("This device does not support native contact saving.");
+      return;
+    }
 
     try {
       const contact = {
@@ -67,8 +72,13 @@ function PublicVCardPage() {
         email: [employee.email],
       };
       const props = ["name", "tel", "email"];
+
+      console.log("Attempting to save contact:", contact);
+      console.log("navigator.contacts:", (navigator as any).contacts);
+
       await (navigator as any).contacts.save([contact], props);
     } catch (err) {
+      console.error("Native contact save failed:", err);
       alert("Could not open native contact save. Try downloading instead.");
     }
   };
@@ -100,7 +110,7 @@ function PublicVCardPage() {
       <div
         ref={cardRef}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-sm h-[95vh] flex flex-col justify-between border border-gray-300 overflow-hidden"
-        onClick={(e) => e.stopPropagation()} // prevent outside click
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Scrollable Card Content */}
         <div className="overflow-y-auto p-6 flex flex-col items-center bg-gradient-to-b from-white to-gray-50">
