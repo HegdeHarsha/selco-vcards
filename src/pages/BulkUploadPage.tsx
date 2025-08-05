@@ -22,7 +22,7 @@ function BulkUploadPage() {
     Papa.parse(csvFile, {
       header: true,
       skipEmptyLines: true,
-      complete: async (results) => {
+      complete: async (results: Papa.ParseResult<any>) => {
         const entries = results.data as any[];
 
         for (const entry of entries) {

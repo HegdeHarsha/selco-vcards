@@ -3,7 +3,6 @@ import { db, auth } from "../firebase";
 import {
   collection,
   getDocs,
-  doc,
   QuerySnapshot,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";

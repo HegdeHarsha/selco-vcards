@@ -10,9 +10,7 @@ import BulkUploadPage from "./pages/BulkUploadPage";
 function Home() {
   return <div className="p-6 text-xl">Welcome to SELCO V-Cards</div>;
 }
-function PublicVCard() {
-  return <div className="p-6 text-xl">Public V-Card Page</div>;
-}
+
 
 
 function App() {
