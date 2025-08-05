@@ -43,8 +43,6 @@ function PublicVCardPage() {
 
     if ("contacts" in navigator && "ContactsManager" in window) {
       setNativeSupported(true);
-    } else {
-      console.log("Native contact save NOT supported.");
     }
   }, [email]);
 
@@ -60,10 +58,7 @@ function PublicVCardPage() {
   };
 
   const handleSaveNativeContact = async () => {
-    if (!employee || !nativeSupported) {
-      alert("This device does not support native contact saving.");
-      return;
-    }
+    if (!employee || !nativeSupported) return;
 
     try {
       const contact = {
@@ -72,15 +67,35 @@ function PublicVCardPage() {
         email: [employee.email],
       };
       const props = ["name", "tel", "email"];
-
-      console.log("Attempting to save contact:", contact);
-      console.log("navigator.contacts:", (navigator as any).contacts);
-
       await (navigator as any).contacts.save([contact], props);
     } catch (err) {
-      console.error("Native contact save failed:", err);
       alert("Could not open native contact save. Try downloading instead.");
     }
+  };
+
+  const handleDownloadVCF = () => {
+    if (!employee) return;
+
+    const vcfData = `
+BEGIN:VCARD
+VERSION:3.0
+FN:${employee.fullName}
+ORG:${employee.company}
+TITLE:${employee.designation}
+TEL:${employee.phone}
+EMAIL:${employee.email}
+ADR:${employee.address}
+URL:${employee.website}
+END:VCARD
+    `.trim();
+
+    const blob = new Blob([vcfData], { type: "text/vcard" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${employee.fullName.replace(/\s+/g, "_")}.vcf`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   if (!employee) {
@@ -94,7 +109,7 @@ function PublicVCardPage() {
         if (isAdmin) navigate("/admin/dashboard");
       }}
     >
-      {/* Close X (only for admin) */}
+      {/* Admin Close Button */}
       {isAdmin && (
         <button
           className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
@@ -107,30 +122,48 @@ function PublicVCardPage() {
         </button>
       )}
 
+      {/* VCard Content */}
       <div
         ref={cardRef}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-sm h-[95vh] flex flex-col justify-between border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Scrollable Card Content */}
+        {/* Main Body */}
         <div className="overflow-y-auto p-6 flex flex-col items-center bg-gradient-to-b from-white to-gray-50">
           <img
             src={employee.photoUrl}
             alt="Employee"
-            className="w-24 h-24 rounded-full object-cover border mb-3"
             onError={(e) => {
               e.currentTarget.src = "/images/logo.png";
             }}
+            className="w-24 h-24 rounded-full object-cover border mb-3"
           />
           <h2 className="text-2xl font-bold text-gray-900">{employee.fullName}</h2>
           <p className="text-sm text-gray-700">{employee.designation}</p>
           <p className="text-sm text-gray-600">{employee.company}</p>
 
           <div className="text-sm text-gray-800 mt-4 space-y-1 text-center">
-            <p>{employee.phone}</p>
-            <p>{employee.email}</p>
+            <p>
+              <a href={`tel:${employee.phone}`} className="text-blue-600 underline">
+                {employee.phone}
+              </a>
+            </p>
+            <p>
+              <a href={`mailto:${employee.email}`} className="text-blue-600 underline">
+                {employee.email}
+              </a>
+            </p>
             <p>{employee.address}</p>
-            <p className="text-blue-600">{employee.website}</p>
+            <p>
+              <a
+                href={employee.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                {employee.website}
+              </a>
+            </p>
           </div>
 
           <div className="mt-6 text-center">
@@ -155,9 +188,12 @@ function PublicVCardPage() {
                 Save Contact
               </button>
             ) : (
-              <div className="text-sm text-gray-500 italic w-full text-center">
-                Native save not supported
-              </div>
+              <button
+                onClick={handleDownloadVCF}
+                className="w-full px-4 py-2 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600"
+              >
+                Download .VCF Contact
+              </button>
             )}
             <button
               onClick={handleDownloadImage}
@@ -170,7 +206,7 @@ function PublicVCardPage() {
           {/* Divider */}
           <div className="border-t border-gray-300 my-2"></div>
 
-          {/* Company Footer with Logo */}
+          {/* Footer with Logo */}
           <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3">
             <img
               src="/images/logo.png"
