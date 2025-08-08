@@ -25,7 +25,7 @@ function PublicVCardPage() {
 
   const [employee, setEmployee] = useState<Employee | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const downloadRef = useRef<HTMLDivElement>(null); // ✅ Only content up to QR
+  const downloadRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,11 +37,9 @@ function PublicVCardPage() {
         setEmployee(data);
       }
     };
-
     fetchData();
   }, [email]);
 
-  // ✅ Trigger download only when ?download=true
   useEffect(() => {
     if (shouldDownload && employee) {
       setTimeout(() => {
@@ -50,7 +48,6 @@ function PublicVCardPage() {
     }
   }, [shouldDownload, employee]);
 
-  // ✅ Download only the content till QR (exclude buttons)
   const handleDownloadImage = async () => {
     if (!downloadRef.current) return;
 
@@ -77,7 +74,6 @@ function PublicVCardPage() {
     link.click();
   };
 
-  // ✅ Unified contact saving (native + fallback)
   const handleSaveContact = async () => {
     if (!employee) return;
 
@@ -123,9 +119,9 @@ END:VCARD
     return <div className="p-6 text-center">Loading or Employee not found...</div>;
   }
 
-/*  return (
+  return (
     <div
-      className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-300 flex items-center justify-center p-3 relative"
+      className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center p-3 relative"
       onClick={() => {
         if (isAdmin) navigate("/admin/dashboard");
       }}
@@ -144,84 +140,87 @@ END:VCARD
 
       <div
         ref={cardRef}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* CARD CONTENT TO BE DOWNLOADED */}
-       /* <div
+        {/* Downloadable Area Only */}
+        <div
           ref={downloadRef}
-          className="flex flex-col items-center bg-gradient-to-b from-white to-gray-50 p-6 flex-grow"
+          className="flex flex-col items-center bg-gradient-to-b from-white to-gray-50 px-6 py-8"
         >
-          <div className="w-full max-w-xs flex flex-col items-center">
-            <img
-              src={employee.photoUrl}
-              alt="Employee"
-              crossOrigin="anonymous"
-              onError={(e) => {
-                e.currentTarget.src = "/images/logo.png";
-              }}
-              className="w-24 h-24 rounded-full object-cover border mb-3"
+          <img
+            src={employee.photoUrl}
+            alt="Employee"
+            crossOrigin="anonymous"
+            onError={(e) => {
+              e.currentTarget.src = "/images/logo.png";
+            }}
+            className="w-24 h-24 rounded-full object-cover border-2 border-gray-300 shadow mb-4"
+          />
+          <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">
+            {employee.fullName}
+          </h2>
+          <p className="text-sm text-gray-700">{employee.designation}</p>
+          <p className="text-sm text-gray-600 mb-4">{employee.company}</p>
+
+          <div className="w-full text-sm text-gray-800 space-y-2 text-left">
+            <p>
+              📞{" "}
+              <a href={`tel:${employee.phone}`} className="text-blue-600 underline">
+                {employee.phone}
+              </a>
+            </p>
+            <p>
+              ✉️{" "}
+              <a href={`mailto:${employee.email}`} className="text-blue-600 underline">
+                {employee.email}
+              </a>
+            </p>
+            <p>📍 {employee.address}</p>
+            <p>
+              🌐{" "}
+              <a
+                href={employee.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                {employee.website}
+              </a>
+            </p>
+          </div>
+
+          <div className="mt-6 text-center">
+            <QRCodeCanvas
+              value={window.location.href}
+              size={100}
+              includeMargin={true}
+              className="mx-auto"
             />
-            <h2 className="text-2xl font-bold text-gray-900">{employee.fullName}</h2>
-            <p className="text-sm text-gray-700">{employee.designation}</p>
-            <p className="text-sm text-gray-600">{employee.company}</p>
-
-            <div className="text-sm text-gray-800 mt-4 space-y-1 text-center">
-              <p>
-                <a href={`tel:${employee.phone}`} className="text-blue-600 underline">
-                  {employee.phone}
-                </a>
-              </p>
-              <p>
-                <a href={`mailto:${employee.email}`} className="text-blue-600 underline">
-                  {employee.email}
-                </a>
-              </p>
-              <p>{employee.address}</p>
-              <p>
-                <a
-                  href={employee.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  {employee.website}
-                </a>
-              </p>
-            </div>
-
-            <div className="mt-6 text-center">
-              <QRCodeCanvas
-                value={window.location.href}
-                size={100}
-                includeMargin={true}
-                className="mx-auto"
-              />
-              <p className="text-xs text-gray-500 mt-2">Scan to open this card</p>
-            </div>
+            <p className="text-xs text-gray-500 mt-2">Scan to open this card</p>
           </div>
         </div>
 
-        {/* BUTTONS - NOT INCLUDED IN DOWNLOAD */}
-       /* <div className="bg-white">
-          <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2 bg-white">
+        {/* Buttons */}
+        <div className="bg-white">
+          <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2">
             <button
               onClick={handleSaveContact}
-              className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+              className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded-md shadow hover:bg-blue-700"
             >
               Save Contact
             </button>
             <button
               onClick={handleDownloadImage}
-              className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded hover:bg-gray-800"
+              className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded-md shadow hover:bg-gray-800"
             >
               Download as PNG
             </button>
           </div>
 
-          <div className="border-t border-gray-300 my-2"></div>
+          <div className="border-t border-gray-300 my-2" />
 
-          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3">
+          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3 px-4">
             <img
               src="/images/logo.png"
               alt="Company Logo"
@@ -249,144 +248,7 @@ END:VCARD
         </div>
       </div>
     </div>
-  ); */
+  );
 }
-
-return (
-  <div
-    className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center p-3 relative"
-    onClick={() => {
-      if (isAdmin) navigate("/admin/dashboard");
-    }}
-  >
-    {isAdmin && (
-      <button
-        className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate("/admin/dashboard");
-        }}
-      >
-        &times;
-      </button>
-    )}
-
-    <div
-      ref={cardRef}
-      className="bg-white rounded-3xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Downloadable Content */}
-      <div
-        ref={downloadRef}
-        className="flex flex-col items-center bg-gradient-to-b from-white to-gray-50 px-6 py-8"
-      >
-        <img
-          src={employee.photoUrl}
-          alt="Employee"
-          crossOrigin="anonymous"
-          onError={(e) => {
-            e.currentTarget.src = "/images/logo.png";
-          }}
-          className="w-24 h-24 rounded-full object-cover border-2 border-gray-300 shadow mb-4"
-        />
-        <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">
-          {employee.fullName}
-        </h2>
-        <p className="text-sm text-gray-700">{employee.designation}</p>
-        <p className="text-sm text-gray-600 mb-4">{employee.company}</p>
-
-        <div className="w-full text-sm text-gray-800 space-y-2 text-left">
-          <p>
-            📞{" "}
-            <a
-              href={`tel:${employee.phone}`}
-              className="text-blue-600 underline"
-            >
-              {employee.phone}
-            </a>
-          </p>
-          <p>
-            ✉️{" "}
-            <a
-              href={`mailto:${employee.email}`}
-              className="text-blue-600 underline"
-            >
-              {employee.email}
-            </a>
-          </p>
-          <p>📍 {employee.address}</p>
-          <p>
-            🌐{" "}
-            <a
-              href={employee.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
-              {employee.website}
-            </a>
-          </p>
-        </div>
-
-        <div className="mt-6 text-center">
-          <QRCodeCanvas
-            value={window.location.href}
-            size={100}
-            includeMargin={true}
-            className="mx-auto"
-          />
-          <p className="text-xs text-gray-500 mt-2">Scan to open this card</p>
-        </div>
-      </div>
-
-      {/* Buttons */}
-      <div className="bg-white">
-        <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2">
-          <button
-            onClick={handleSaveContact}
-            className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded-md shadow hover:bg-blue-700"
-          >
-            Save Contact
-          </button>
-          <button
-            onClick={handleDownloadImage}
-            className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded-md shadow hover:bg-gray-800"
-          >
-            Download as PNG
-          </button>
-        </div>
-
-        <div className="border-t border-gray-300 my-2" />
-
-        <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3 px-4">
-          <img
-            src="/images/logo.png"
-            alt="Company Logo"
-            className="h-5 w-5 object-contain"
-          />
-          <div>
-            <p>SELCO Solar Light Pvt Ltd</p>
-            <p>
-              <a href="mailto:selco@selco-india.com" className="text-blue-600">
-                selco@selco-india.com
-              </a>
-            </p>
-            <p>
-              <a
-                href="https://www.selco-india.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600"
-              >
-                www.selco-india.com
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
 export default PublicVCardPage;
