@@ -121,14 +121,14 @@ END:VCARD
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center p-3 relative"
+      className="min-h-screen bg-gradient-to-b from-[#f7931e] to-white flex items-center justify-center p-3 relative"
       onClick={() => {
         if (isAdmin) navigate("/admin/dashboard");
       }}
     >
       {isAdmin && (
         <button
-          className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
+          className="absolute top-4 right-4 text-gray-700 hover:text-black text-xl"
           onClick={(e) => {
             e.stopPropagation();
             navigate("/admin/dashboard");
@@ -143,10 +143,10 @@ END:VCARD
         className="bg-white rounded-3xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Downloadable Area Only */}
+        {/* DOWNLOAD-ONLY CARD */}
         <div
           ref={downloadRef}
-          className="flex flex-col items-center bg-gradient-to-b from-white to-gray-50 px-6 py-8"
+          className="flex flex-col items-center bg-gradient-to-b from-white to-gray-50 px-6 py-8 font-[Georgia]"
         >
           <img
             src={employee.photoUrl}
@@ -163,7 +163,7 @@ END:VCARD
           <p className="text-sm text-gray-700">{employee.designation}</p>
           <p className="text-sm text-gray-600 mb-4">{employee.company}</p>
 
-          <div className="w-full text-sm text-gray-800 space-y-2 text-left">
+          <div className="text-sm text-gray-800 space-y-2 text-center">
             <p>
               📞{" "}
               <a href={`tel:${employee.phone}`} className="text-blue-600 underline">
@@ -201,7 +201,7 @@ END:VCARD
           </div>
         </div>
 
-        {/* Buttons */}
+        {/* ACTION BUTTONS */}
         <div className="bg-white">
           <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2">
             <button
@@ -220,7 +220,7 @@ END:VCARD
 
           <div className="border-t border-gray-300 my-2" />
 
-          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3 px-4">
+          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3 px-4 font-[Georgia]">
             <img
               src="/images/logo.png"
               alt="Company Logo"
