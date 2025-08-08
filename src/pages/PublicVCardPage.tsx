@@ -21,10 +21,9 @@ function PublicVCardPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isAdmin = searchParams.get("admin") === "true";
-  const shouldDownload = searchParams.get("download") === "true"; // ✅ NEW
+  const shouldDownload = searchParams.get("download") === "true";
 
   const [employee, setEmployee] = useState<Employee | null>(null);
-  const [nativeSupported, setNativeSupported] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,13 +38,8 @@ function PublicVCardPage() {
     };
 
     fetchData();
-
-    if ("contacts" in navigator && "ContactsManager" in window) {
-      setNativeSupported(true);
-    }
   }, [email]);
 
-  // ✅ NEW: Auto-trigger download if ?download=true
   useEffect(() => {
     if (shouldDownload && employee) {
       setTimeout(() => {
@@ -57,7 +51,6 @@ function PublicVCardPage() {
   const handleDownloadImage = async () => {
     if (!cardRef.current) return;
 
-    // Wait for all images inside card to load
     const images = cardRef.current.querySelectorAll("img");
     await Promise.all(
       Array.from(images).map((img) => {
@@ -81,26 +74,27 @@ function PublicVCardPage() {
     link.click();
   };
 
-  const handleSaveNativeContact = async () => {
-    if (!employee || !nativeSupported) return;
-
-    try {
-      const contact = {
-        name: [employee.fullName],
-        tel: [employee.phone],
-        email: [employee.email],
-      };
-      const props = ["name", "tel", "email"];
-      await (navigator as any).contacts.save([contact], props);
-    } catch (err) {
-      alert("Could not open native contact save. Try downloading instead.");
-    }
-  };
-
-  const handleDownloadVCF = () => {
+  // ✅ Unified Save Contact Logic (Native + Fallback to VCF)
+  const handleSaveContact = async () => {
     if (!employee) return;
 
-    const vcfData = `
+    const contact = {
+      name: [employee.fullName],
+      tel: [employee.phone],
+      email: [employee.email],
+    };
+
+    const props = ["name", "tel", "email"];
+
+    try {
+      if ("contacts" in navigator && "ContactsManager" in window) {
+        await (navigator as any).contacts.save([contact], props);
+        return;
+      }
+      throw new Error("Not supported");
+    } catch {
+      // fallback to .vcf
+      const vcfData = `
 BEGIN:VCARD
 VERSION:3.0
 FN:${employee.fullName}
@@ -111,15 +105,16 @@ EMAIL:${employee.email}
 ADR:${employee.address}
 URL:${employee.website}
 END:VCARD
-    `.trim();
+      `.trim();
 
-    const blob = new Blob([vcfData], { type: "text/vcard" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${employee.fullName.replace(/\s+/g, "_")}.vcf`;
-    link.click();
-    URL.revokeObjectURL(url);
+      const blob = new Blob([vcfData], { type: "text/vcard" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${employee.fullName.replace(/\s+/g, "_")}.vcf`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
   };
 
   if (!employee) {
@@ -133,7 +128,6 @@ END:VCARD
         if (isAdmin) navigate("/admin/dashboard");
       }}
     >
-      {/* Admin close */}
       {isAdmin && (
         <button
           className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
@@ -151,7 +145,6 @@ END:VCARD
         className="bg-white rounded-2xl shadow-2xl w-full max-w-sm h-[95vh] flex flex-col justify-between border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* VCard Top */}
         <div className="overflow-y-auto p-6 flex flex-col items-center bg-gradient-to-b from-white to-gray-50">
           <img
             src={employee.photoUrl}
@@ -201,24 +194,14 @@ END:VCARD
           </div>
         </div>
 
-        {/* Buttons + Footer */}
         <div className="bg-white">
           <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2 bg-white">
-            {nativeSupported ? (
-              <button
-                onClick={handleSaveNativeContact}
-                className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-              >
-                Save Contact
-              </button>
-            ) : (
-              <button
-                onClick={handleDownloadVCF}
-                className="w-full px-4 py-2 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600"
-              >
-                Download .VCF Contact
-              </button>
-            )}
+            <button
+              onClick={handleSaveContact}
+              className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            >
+              Save Contact
+            </button>
             <button
               onClick={handleDownloadImage}
               className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded hover:bg-gray-800"
