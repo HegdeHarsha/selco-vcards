@@ -133,7 +133,7 @@ END:VCARD`.trim();
         ref={cardRef}
         className="bg-orange-200 rounded-2xl shadow-2xl w-full max-w-sm border border-gray-300 overflow-hidden flex flex-col justify-between"
         style={{
-          backgroundImage: "https://res.cloudinary.com/dtfchlbpc/image/upload/v1754650292/Untitled_50_x_85_mm_rdihce.png",
+          backgroundImage: "url('https://res.cloudinary.com/dtfchlbpc/image/upload/v1754650643/Untitled_50_x_85_mm_1_vuauix.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
