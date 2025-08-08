@@ -191,14 +191,14 @@ END:VCARD`.trim();
           </div>
 
 
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center">
             <QRCodeCanvas
               value={window.location.href}
-              size={100}
+              size={140} // ⬅️ Increased from 100 → 140
               includeMargin={true}
               className="mx-auto"
             />
-            <p className="text-xs text-gray-700 mt-2">Scan to open this card</p>
+            <p className="text-sm text-gray-700 mt-3">Scan to open this card</p>
           </div>
         </div>
 
