@@ -101,23 +101,31 @@ function EmployeeFormPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-3xl mx-auto bg-white shadow rounded-lg p-8">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 relative">
+      {/* Close Button */}
+      <button
+        className="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl"
+        onClick={() => navigate("/admin/dashboard")}
+      >
+        &times;
+      </button>
+
+      <div className="w-full max-w-2xl bg-white shadow-xl rounded-xl p-8">
+        <h2 className="text-xl font-bold mb-6 text-gray-800 text-center">
           {isEdit ? "Edit Employee Card" : "Create New Employee Card"}
         </h2>
 
-        {/* Image Upload + Preview */}
-        <div className="flex items-center gap-6 mb-6">
+        {/* Image Upload Preview */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
           <img
             src={previewUrl}
             onError={(e) => {
               e.currentTarget.src = "/images/logo.png";
             }}
             alt="Preview"
-            className="w-20 h-20 rounded-full border object-cover"
+            className="w-24 h-24 rounded-full border object-cover"
           />
-          <div>
+          <div className="w-full">
             <input
               type="file"
               accept="image/*"
@@ -134,14 +142,14 @@ function EmployeeFormPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid gap-6">
-          <div>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="col-span-2">
             <label className="block text-sm font-medium mb-1">Full Name *</label>
             <input
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring focus:ring-green-200"
+              className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-green-200"
               required
             />
           </div>
@@ -152,87 +160,85 @@ function EmployeeFormPage() {
               name="designation"
               value={formData.designation}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring focus:ring-green-200"
+              className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-green-200"
               required
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium mb-1">Phone Number *</label>
-              <input
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md focus:ring focus:ring-green-200"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Email *</label>
-              <input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-md focus:ring focus:ring-green-200"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Phone *</label>
+            <input
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-green-200"
+              required
+            />
           </div>
 
           <div>
+            <label className="block text-sm font-medium mb-1">Email *</label>
+            <input
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-green-200"
+              required
+            />
+          </div>
+
+          <div className="col-span-2">
             <label className="block text-sm font-medium mb-1">Address *</label>
             <textarea
               name="address"
               value={formData.address}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring focus:ring-green-200"
-              rows={3}
+              className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-green-200"
+              rows={2}
               required
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Website <span className="text-gray-400">(optional)</span>
-            </label>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium mb-1">Website</label>
             <input
               name="website"
               value={formData.website}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring focus:ring-green-200"
+              className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-green-200"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Photo URL (auto-filled)</label>
+          <div className="col-span-2">
+            <label className="block text-sm font-medium mb-1">Photo URL (readonly)</label>
             <input
               name="photoUrl"
               value={formData.photoUrl}
               onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring focus:ring-green-200"
+              className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed"
               readOnly
             />
           </div>
 
-          <button
-            type="submit"
-            className="bg-emerald-600 text-white px-6 py-2 rounded-md hover:bg-emerald-700 transition"
-          >
-            {isEdit ? "Update Card" : "Create Card"}
-          </button>
-
-          {isEdit && (
+          <div className="col-span-2 flex flex-col sm:flex-row gap-3 mt-4">
             <button
-              type="button"
-              onClick={handleDelete}
-              className="mt-4 w-full bg-red-600 text-white py-2 rounded hover:bg-red-700"
+              type="submit"
+              className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 transition"
             >
-              Delete this Card
+              {isEdit ? "Update Card" : "Create Card"}
             </button>
-          )}
+
+            {isEdit && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="flex-1 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+              >
+                Delete this Card
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </div>
