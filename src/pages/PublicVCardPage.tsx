@@ -24,7 +24,6 @@ function PublicVCardPage() {
   const shouldDownload = searchParams.get("download") === "true";
 
   const [employee, setEmployee] = useState<Employee | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
   const downloadRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,6 +36,7 @@ function PublicVCardPage() {
         setEmployee(data);
       }
     };
+
     fetchData();
   }, [email]);
 
@@ -51,15 +51,17 @@ function PublicVCardPage() {
   const handleDownloadImage = async () => {
     if (!downloadRef.current) return;
 
+    // Wait for all images to load
     const images = downloadRef.current.querySelectorAll("img");
     await Promise.all(
-      Array.from(images).map((img) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise<void>((resolve) => {
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-        });
-      })
+      Array.from(images).map((img) =>
+        img.complete
+          ? Promise.resolve()
+          : new Promise<void>((resolve) => {
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            })
+      )
     );
 
     const canvas = await html2canvas(downloadRef.current, {
@@ -121,14 +123,14 @@ END:VCARD
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-sky-300 to-white flex items-center justify-center p-3 relative"
+      className="min-h-screen bg-gradient-to-b from-blue-400 to-white flex items-center justify-center p-3 relative"
       onClick={() => {
         if (isAdmin) navigate("/admin/dashboard");
       }}
     >
       {isAdmin && (
         <button
-          className="absolute top-4 right-4 text-gray-700 hover:text-black text-xl"
+          className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
           onClick={(e) => {
             e.stopPropagation();
             navigate("/admin/dashboard");
@@ -139,17 +141,19 @@ END:VCARD
       )}
 
       <div
-        ref={cardRef}
-        className="rounded-3xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
+        ref={downloadRef}
+        className="relative w-full max-w-sm flex flex-col items-center px-6 py-8 font-[Georgia] rounded-3xl overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "linear-gradient(to bottom, #f7931e, #ffffff)", // orange to white
-        }}
       >
+        {/* Absolute orange gradient background INSIDE the downloadable card */}
         <div
-          ref={downloadRef}
-          className="flex flex-col items-center px-6 py-8 font-[Georgia]"
-        >
+          className="absolute inset-0 z-0"
+          style={{
+            background: "linear-gradient(to bottom, #f7931e, #ffffff)",
+          }}
+        ></div>
+
+        <div className="relative z-10 flex flex-col items-center w-full">
           <img
             src={employee.photoUrl}
             alt="Employee"
@@ -202,51 +206,22 @@ END:VCARD
             <p className="text-xs text-gray-500 mt-2">Scan to open this card</p>
           </div>
         </div>
+      </div>
 
-        <div className="bg-white">
-          <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2">
-            <button
-              onClick={handleSaveContact}
-              className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded-md shadow hover:bg-blue-700"
-            >
-              Save Contact
-            </button>
-            <button
-              onClick={handleDownloadImage}
-              className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded-md shadow hover:bg-gray-800"
-            >
-              Download as PNG
-            </button>
-          </div>
-
-          <div className="border-t border-gray-300 my-2" />
-
-          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3 px-4 font-[Georgia]">
-            <img
-              src="/images/logo.png"
-              alt="Company Logo"
-              className="h-5 w-5 object-contain"
-            />
-            <div>
-              <p>SELCO Solar Light Pvt Ltd</p>
-              <p>
-                <a href="mailto:selco@selco-india.com" className="text-blue-600">
-                  selco@selco-india.com
-                </a>
-              </p>
-              <p>
-                <a
-                  href="https://www.selco-india.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600"
-                >
-                  www.selco-india.com
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Buttons below the card (NOT included in PNG) */}
+      <div className="absolute bottom-4 flex flex-col sm:flex-row gap-2 w-full max-w-sm">
+        <button
+          onClick={handleSaveContact}
+          className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+        >
+          Save Contact
+        </button>
+        <button
+          onClick={handleDownloadImage}
+          className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded hover:bg-gray-800"
+        >
+          Download as PNG
+        </button>
       </div>
     </div>
   );
