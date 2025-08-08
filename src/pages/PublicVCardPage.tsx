@@ -133,7 +133,7 @@ END:VCARD`.trim();
         ref={cardRef}
         className="bg-orange-200 rounded-2xl shadow-2xl w-full max-w-sm border border-gray-300 overflow-hidden flex flex-col justify-between"
         style={{
-          backgroundImage: "url('https://res.cloudinary.com/dtfchlbpc/image/upload/v1754650643/Untitled_50_x_85_mm_1_vuauix.png')",
+          backgroundImage: "url('https://res.cloudinary.com/dtfchlbpc/image/upload/v1754653545/Untitled_50_x_85_mm_2_zqmeyg.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -200,7 +200,7 @@ END:VCARD`.trim();
           <div className="mt-8 text-center">
             <QRCodeCanvas
               value={window.location.href}
-              size={140} // increased from 100 to 140
+              size={120} // increased from 100 to 140
               includeMargin={true}
               className="mx-auto"
             />
