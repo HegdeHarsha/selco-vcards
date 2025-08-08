@@ -4,12 +4,6 @@ import html2canvas from "html2canvas";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import {
-  Phone,
-  Mail,
-  MapPin,
-  Globe,
-} from "lucide-react";
 
 interface Employee {
   fullName: string;
@@ -55,24 +49,12 @@ function PublicVCardPage() {
   }, [shouldDownload, employee]);
 
   const handleDownloadImage = async () => {
-    const downloadNode = document.getElementById("downloadTarget");
-    if (!downloadNode) return;
+    const originalButtons = document.getElementById("action-buttons");
+    if (originalButtons) originalButtons.style.display = "none";
 
-    const images = downloadNode.querySelectorAll("img");
-    await Promise.all(
-      Array.from(images).map((img) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise<void>((resolve) => {
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-        });
-      })
-    );
-
-    const canvas = await html2canvas(downloadNode, {
+    const canvas = await html2canvas(cardRef.current!, {
       useCORS: true,
       scale: 2,
-      backgroundColor: null,
     });
 
     const dataUrl = canvas.toDataURL("image/png");
@@ -80,6 +62,8 @@ function PublicVCardPage() {
     link.href = dataUrl;
     link.download = `${employee?.fullName || "vcard"}.png`;
     link.click();
+
+    if (originalButtons) originalButtons.style.display = "flex";
   };
 
   const handleSaveContact = async () => {
@@ -110,8 +94,7 @@ TEL:${employee.phone}
 EMAIL:${employee.email}
 ADR:${employee.address}
 URL:${employee.website}
-END:VCARD
-      `.trim();
+END:VCARD`.trim();
 
       const blob = new Blob([vcfData], { type: "text/vcard" });
       const url = URL.createObjectURL(blob);
@@ -129,7 +112,7 @@ END:VCARD
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-blue-200 to-white flex items-center justify-center p-3 relative"
+      className="min-h-screen bg-gradient-to-b from-sky-100 to-sky-300 flex items-center justify-center p-3 relative"
       onClick={() => {
         if (isAdmin) navigate("/admin/dashboard");
       }}
@@ -148,19 +131,17 @@ END:VCARD
 
       <div
         ref={cardRef}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col justify-between border border-gray-300 overflow-hidden text-center font-[Georgia]"
+        className="bg-orange-200 rounded-2xl shadow-2xl w-full max-w-sm border border-gray-300 overflow-hidden flex flex-col justify-between"
+        style={{
+          backgroundImage: "https://res.cloudinary.com/dtfchlbpc/image/upload/v1754650292/Untitled_50_x_85_mm_rdihce.png",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 🔶 Download Target */}
-        <div
-          id="downloadTarget"
-          className="p-6 flex flex-col items-center text-white"
-          style={{
-            backgroundImage: "linear-gradient(to bottom, #f97316, #fb923c)",
-            borderRadius: "1rem",
-            width: "100%",
-          }}
-        >
+        {/* Top Section */}
+        <div className="p-6 flex flex-col items-center text-center text-[15px] font-[Georgia] text-black">
           <img
             src={employee.photoUrl}
             alt="Employee"
@@ -168,35 +149,33 @@ END:VCARD
             onError={(e) => {
               e.currentTarget.src = "/images/logo.png";
             }}
-            className="w-24 h-24 rounded-full object-cover border-4 border-white mb-4"
+            className="w-24 h-24 rounded-full object-cover border mb-3"
           />
-          <h2 className="text-2xl font-bold">{employee.fullName}</h2>
+          <h2 className="text-xl font-bold">{employee.fullName}</h2>
           <p className="text-sm">{employee.designation}</p>
-          <p className="text-sm mb-2">{employee.company}</p>
+          <p className="text-sm">{employee.company}</p>
 
-          <div className="text-sm space-y-2 mt-3">
-            <p className="flex items-center justify-center gap-2">
-              <Phone size={16} />{" "}
-              <a href={`tel:${employee.phone}`} className="underline text-white">
+          <div className="mt-4 space-y-1 text-center text-sm text-gray-800">
+            <p>
+              📞{" "}
+              <a href={`tel:${employee.phone}`} className="text-blue-700 underline">
                 {employee.phone}
               </a>
             </p>
-            <p className="flex items-center justify-center gap-2">
-              <Mail size={16} />{" "}
-              <a href={`mailto:${employee.email}`} className="underline text-white">
+            <p>
+              📧{" "}
+              <a href={`mailto:${employee.email}`} className="text-blue-700 underline">
                 {employee.email}
               </a>
             </p>
-            <p className="flex items-center justify-center gap-2">
-              <MapPin size={16} /> {employee.address}
-            </p>
-            <p className="flex items-center justify-center gap-2">
-              <Globe size={16} />{" "}
+            <p>📍 {employee.address}</p>
+            <p>
+              🌐{" "}
               <a
                 href={employee.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline text-white"
+                className="text-blue-700 underline"
               >
                 {employee.website}
               </a>
@@ -208,31 +187,37 @@ END:VCARD
               value={window.location.href}
               size={100}
               includeMargin={true}
-              className="mx-auto bg-white p-1 rounded"
+              className="mx-auto"
             />
-            <p className="text-xs mt-2">Scan to open this card</p>
+            <p className="text-xs text-gray-700 mt-2">Scan to open this card</p>
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="bg-white p-4 flex flex-col sm:flex-row gap-2">
-          <button
-            onClick={handleSaveContact}
-            className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+        {/* Footer */}
+        <div className="bg-white w-full">
+          {/* Buttons */}
+          <div
+            id="action-buttons"
+            className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2 bg-white"
           >
-            Save Contact
-          </button>
-          <button
-            onClick={handleDownloadImage}
-            className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded hover:bg-gray-800"
-          >
-            Download as PNG
-          </button>
-        </div>
+            <button
+              onClick={handleSaveContact}
+              className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+            >
+              Save Contact
+            </button>
+            <button
+              onClick={handleDownloadImage}
+              className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded hover:bg-gray-800"
+            >
+              Download as PNG
+            </button>
+          </div>
 
-        {/* Company Footer */}
-        <div className="text-[11px] text-gray-600 text-center py-2 bg-white">
-          <div className="flex items-center justify-center gap-2">
+          {/* Company Footer */}
+          <div className="border-t border-gray-300 my-2"></div>
+
+          <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3">
             <img
               src="/images/logo.png"
               alt="Company Logo"
