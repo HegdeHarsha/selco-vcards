@@ -25,7 +25,7 @@ function PublicVCardPage() {
 
   const [employee, setEmployee] = useState<Employee | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const downloadRef = useRef<HTMLDivElement>(null); // ✅ NEW
+  const downloadRef = useRef<HTMLDivElement>(null); // ✅ Only content up to QR
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +41,7 @@ function PublicVCardPage() {
     fetchData();
   }, [email]);
 
+  // ✅ Trigger download only when ?download=true
   useEffect(() => {
     if (shouldDownload && employee) {
       setTimeout(() => {
@@ -49,6 +50,7 @@ function PublicVCardPage() {
     }
   }, [shouldDownload, employee]);
 
+  // ✅ Download only the content till QR (exclude buttons)
   const handleDownloadImage = async () => {
     if (!downloadRef.current) return;
 
@@ -75,6 +77,7 @@ function PublicVCardPage() {
     link.click();
   };
 
+  // ✅ Unified contact saving (native + fallback)
   const handleSaveContact = async () => {
     if (!employee) return;
 
@@ -141,63 +144,65 @@ END:VCARD
 
       <div
         ref={cardRef}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm h-[95vh] flex flex-col justify-between border border-gray-300 overflow-hidden"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ✅ ONLY THIS PART WILL BE DOWNLOADED */}
+        {/* CARD CONTENT TO BE DOWNLOADED */}
         <div
           ref={downloadRef}
-          className="overflow-y-auto p-6 flex flex-col items-center bg-gradient-to-b from-white to-gray-50"
+          className="flex flex-col items-center bg-gradient-to-b from-white to-gray-50 p-6 flex-grow"
         >
-          <img
-            src={employee.photoUrl}
-            alt="Employee"
-            crossOrigin="anonymous"
-            onError={(e) => {
-              e.currentTarget.src = "/images/logo.png";
-            }}
-            className="w-24 h-24 rounded-full object-cover border mb-3"
-          />
-          <h2 className="text-2xl font-bold text-gray-900">{employee.fullName}</h2>
-          <p className="text-sm text-gray-700">{employee.designation}</p>
-          <p className="text-sm text-gray-600">{employee.company}</p>
-
-          <div className="text-sm text-gray-800 mt-4 space-y-1 text-center">
-            <p>
-              <a href={`tel:${employee.phone}`} className="text-blue-600 underline">
-                {employee.phone}
-              </a>
-            </p>
-            <p>
-              <a href={`mailto:${employee.email}`} className="text-blue-600 underline">
-                {employee.email}
-              </a>
-            </p>
-            <p>{employee.address}</p>
-            <p>
-              <a
-                href={employee.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                {employee.website}
-              </a>
-            </p>
-          </div>
-
-          <div className="mt-6 text-center">
-            <QRCodeCanvas
-              value={window.location.href}
-              size={100}
-              includeMargin={true}
-              className="mx-auto"
+          <div className="w-full max-w-xs flex flex-col items-center">
+            <img
+              src={employee.photoUrl}
+              alt="Employee"
+              crossOrigin="anonymous"
+              onError={(e) => {
+                e.currentTarget.src = "/images/logo.png";
+              }}
+              className="w-24 h-24 rounded-full object-cover border mb-3"
             />
-            <p className="text-xs text-gray-500 mt-2">Scan to open this card</p>
+            <h2 className="text-2xl font-bold text-gray-900">{employee.fullName}</h2>
+            <p className="text-sm text-gray-700">{employee.designation}</p>
+            <p className="text-sm text-gray-600">{employee.company}</p>
+
+            <div className="text-sm text-gray-800 mt-4 space-y-1 text-center">
+              <p>
+                <a href={`tel:${employee.phone}`} className="text-blue-600 underline">
+                  {employee.phone}
+                </a>
+              </p>
+              <p>
+                <a href={`mailto:${employee.email}`} className="text-blue-600 underline">
+                  {employee.email}
+                </a>
+              </p>
+              <p>{employee.address}</p>
+              <p>
+                <a
+                  href={employee.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  {employee.website}
+                </a>
+              </p>
+            </div>
+
+            <div className="mt-6 text-center">
+              <QRCodeCanvas
+                value={window.location.href}
+                size={100}
+                includeMargin={true}
+                className="mx-auto"
+              />
+              <p className="text-xs text-gray-500 mt-2">Scan to open this card</p>
+            </div>
           </div>
         </div>
 
-        {/* ✅ THIS PART IS NOT DOWNLOADED */}
+        {/* BUTTONS - NOT INCLUDED IN DOWNLOAD */}
         <div className="bg-white">
           <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2 bg-white">
             <button
