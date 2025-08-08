@@ -25,6 +25,7 @@ function PublicVCardPage() {
 
   const [employee, setEmployee] = useState<Employee | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const downloadRef = useRef<HTMLDivElement>(null); // ✅ NEW
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,9 +50,9 @@ function PublicVCardPage() {
   }, [shouldDownload, employee]);
 
   const handleDownloadImage = async () => {
-    if (!cardRef.current) return;
+    if (!downloadRef.current) return;
 
-    const images = cardRef.current.querySelectorAll("img");
+    const images = downloadRef.current.querySelectorAll("img");
     await Promise.all(
       Array.from(images).map((img) => {
         if (img.complete) return Promise.resolve();
@@ -62,7 +63,7 @@ function PublicVCardPage() {
       })
     );
 
-    const canvas = await html2canvas(cardRef.current, {
+    const canvas = await html2canvas(downloadRef.current, {
       useCORS: true,
       scale: 2,
     });
@@ -74,7 +75,6 @@ function PublicVCardPage() {
     link.click();
   };
 
-  // ✅ Unified Save Contact Logic (Native + Fallback to VCF)
   const handleSaveContact = async () => {
     if (!employee) return;
 
@@ -93,7 +93,6 @@ function PublicVCardPage() {
       }
       throw new Error("Not supported");
     } catch {
-      // fallback to .vcf
       const vcfData = `
 BEGIN:VCARD
 VERSION:3.0
@@ -145,7 +144,11 @@ END:VCARD
         className="bg-white rounded-2xl shadow-2xl w-full max-w-sm h-[95vh] flex flex-col justify-between border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="overflow-y-auto p-6 flex flex-col items-center bg-gradient-to-b from-white to-gray-50">
+        {/* ✅ ONLY THIS PART WILL BE DOWNLOADED */}
+        <div
+          ref={downloadRef}
+          className="overflow-y-auto p-6 flex flex-col items-center bg-gradient-to-b from-white to-gray-50"
+        >
           <img
             src={employee.photoUrl}
             alt="Employee"
@@ -194,6 +197,7 @@ END:VCARD
           </div>
         </div>
 
+        {/* ✅ THIS PART IS NOT DOWNLOADED */}
         <div className="bg-white">
           <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2 bg-white">
             <button
