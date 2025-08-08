@@ -153,18 +153,25 @@ END:VCARD`.trim();
           />
           <h2 className="text-xl font-bold">{employee.fullName}</h2>
           <p className="text-sm">{employee.designation}</p>
-          <p className="text-sm">{employee.company}</p>
 
-          <div className="mt-4 space-y-1 text-center text-sm text-gray-800">
+          <div className="mt-4 space-y-2 text-center text-[16px] font-[Georgia] text-black">
             <p>
               📞{" "}
-              <a href={`tel:${employee.phone}`} className="text-blue-700 underline">
+              <a
+                href={`tel:${employee.phone}`}
+                className="text-blue-700 hover:underline hover:text-blue-900 no-underline"
+                style={{ textDecoration: "none" }}
+              >
                 {employee.phone}
               </a>
             </p>
             <p>
               📧{" "}
-              <a href={`mailto:${employee.email}`} className="text-blue-700 underline">
+              <a
+                href={`mailto:${employee.email}`}
+                className="text-blue-700 hover:underline hover:text-blue-900 no-underline"
+                style={{ textDecoration: "none" }}
+              >
                 {employee.email}
               </a>
             </p>
@@ -175,12 +182,14 @@ END:VCARD`.trim();
                 href={employee.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-700 underline"
+                className="text-blue-700 hover:underline hover:text-blue-900 no-underline"
+                style={{ textDecoration: "none" }}
               >
                 {employee.website}
               </a>
             </p>
           </div>
+
 
           <div className="mt-6 text-center">
             <QRCodeCanvas
