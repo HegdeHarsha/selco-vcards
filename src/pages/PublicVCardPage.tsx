@@ -206,7 +206,7 @@ END:VCARD`.trim();
           <div className="mt-8 text-center">
             <QRCodeCanvas
               value={window.location.href}
-              size={120} // increased from 100 to 140
+              size={130} // increased from 100 to 140
               includeMargin={true}
               className="mx-auto"
             />
