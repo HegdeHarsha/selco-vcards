@@ -47,15 +47,28 @@ function PublicVCardPage() {
   }, [email]);
 
   const handleDownloadImage = async () => {
-    if (!cardRef.current) return;
-    const canvas = await html2canvas(cardRef.current);
-    const dataUrl = canvas.toDataURL("image/png");
+  if (!cardRef.current) return;
 
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = `${employee?.fullName || "vcard"}.png`;
-    link.click();
-  };
+  const imageEl = cardRef.current.querySelector("img");
+
+  if (imageEl && !imageEl.complete) {
+    await new Promise<void>((resolve) => {
+      imageEl.onload = () => resolve();
+      imageEl.onerror = () => resolve();
+    });
+  }
+
+  const canvas = await html2canvas(cardRef.current, {
+    useCORS: true, // ensures CORS images are captured correctly
+    scale: 2,      // higher quality
+  });
+
+  const dataUrl = canvas.toDataURL("image/png");
+  const link = document.createElement("a");
+  link.href = dataUrl;
+  link.download = `${employee?.fullName || "vcard"}.png`;
+  link.click();
+};
 
   const handleSaveNativeContact = async () => {
     if (!employee || !nativeSupported) return;
