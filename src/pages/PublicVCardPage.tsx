@@ -140,13 +140,13 @@ END:VCARD
 
       <div
         ref={cardRef}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
+        className="bg-gradient-to-b from-sky-200 to-white rounded-3xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* DOWNLOAD-ONLY CARD */}
         <div
           ref={downloadRef}
-          className="flex flex-col items-center bg-gradient-to-b from-white to-gray-50 px-6 py-8 font-[Georgia]"
+          className="flex flex-col items-center px-6 py-8 font-[Georgia]"
         >
           <img
             src={employee.photoUrl}
