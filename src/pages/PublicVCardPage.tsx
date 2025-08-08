@@ -121,7 +121,7 @@ END:VCARD
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-[#f7931e] to-white flex items-center justify-center p-3 relative"
+      className="min-h-screen bg-gradient-to-b from-sky-300 to-white flex items-center justify-center p-3 relative"
       onClick={() => {
         if (isAdmin) navigate("/admin/dashboard");
       }}
@@ -140,10 +140,12 @@ END:VCARD
 
       <div
         ref={cardRef}
-        className="bg-gradient-to-b from-sky-200 to-white rounded-3xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
+        className="rounded-3xl shadow-2xl w-full max-w-sm flex flex-col border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "linear-gradient(to bottom, #f7931e, #ffffff)", // orange to white
+        }}
       >
-        {/* DOWNLOAD-ONLY CARD */}
         <div
           ref={downloadRef}
           className="flex flex-col items-center px-6 py-8 font-[Georgia]"
@@ -201,7 +203,6 @@ END:VCARD
           </div>
         </div>
 
-        {/* ACTION BUTTONS */}
         <div className="bg-white">
           <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2">
             <button
