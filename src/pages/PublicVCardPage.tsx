@@ -141,7 +141,8 @@ END:VCARD`.trim();
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Section */}
-        <div className="p-6 flex flex-col items-center text-center text-[15px] font-[Georgia] text-black">
+        <div className="p-6 flex flex-col items-center text-center font-[Georgia] text-black">
+          {/* Bigger Photo */}
           <img
             src={employee.photoUrl}
             alt="Employee"
@@ -149,17 +150,22 @@ END:VCARD`.trim();
             onError={(e) => {
               e.currentTarget.src = "/images/logo.png";
             }}
-            className="w-24 h-24 rounded-full object-cover border mb-3"
+            className="w-32 h-32 rounded-full object-cover border mb-4" // ⬅️ was w-24 h-24 → now w-32 h-32
           />
-          <h2 className="text-xl font-bold">{employee.fullName}</h2>
-          <p className="text-sm">{employee.designation}</p>
 
-          <div className="mt-4 space-y-2 text-center text-[16px] font-[Georgia] text-black">
+          {/* Bigger Name */}
+          <h2 className="text-3xl font-bold mb-1">{employee.fullName}</h2> {/* ⬅️ text-3xl */}
+
+          {/* Bigger Designation */}
+          <p className="text-xl mb-1">{employee.designation}</p> {/* ⬅️ text-xl */}
+
+          {/* Contact Info */}
+          <div className="space-y-3 text-center text-[18px]">
             <p>
               📞{" "}
               <a
                 href={`tel:${employee.phone}`}
-                className="text-blue-700 hover:underline hover:text-blue-900 no-underline"
+                className="text-blue-700 hover:text-blue-900"
                 style={{ textDecoration: "none" }}
               >
                 {employee.phone}
@@ -169,7 +175,7 @@ END:VCARD`.trim();
               📧{" "}
               <a
                 href={`mailto:${employee.email}`}
-                className="text-blue-700 hover:underline hover:text-blue-900 no-underline"
+                className="text-blue-700 hover:text-blue-900"
                 style={{ textDecoration: "none" }}
               >
                 {employee.email}
@@ -182,7 +188,7 @@ END:VCARD`.trim();
                 href={employee.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-700 hover:underline hover:text-blue-900 no-underline"
+                className="text-blue-700 hover:text-blue-900"
                 style={{ textDecoration: "none" }}
               >
                 {employee.website}
@@ -190,15 +196,15 @@ END:VCARD`.trim();
             </p>
           </div>
 
-
+          {/* Bigger QR Code */}
           <div className="mt-8 text-center">
             <QRCodeCanvas
               value={window.location.href}
-              size={140} // ⬅️ Increased from 100 → 140
+              size={140} // increased from 100 to 140
               includeMargin={true}
               className="mx-auto"
             />
-            <p className="text-sm text-gray-700 mt-3">Scan to open this card</p>
+            <p className="text-base text-gray-700 mt-3">Scan to open this card</p> {/* ⬅️ text-base */}
           </div>
         </div>
 
