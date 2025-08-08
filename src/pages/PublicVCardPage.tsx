@@ -21,6 +21,7 @@ function PublicVCardPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isAdmin = searchParams.get("admin") === "true";
+  const shouldDownload = searchParams.get("download") === "true"; // ✅ NEW
 
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [nativeSupported, setNativeSupported] = useState(false);
@@ -43,6 +44,15 @@ function PublicVCardPage() {
       setNativeSupported(true);
     }
   }, [email]);
+
+  // ✅ NEW: Auto-trigger download if ?download=true
+  useEffect(() => {
+    if (shouldDownload && employee) {
+      setTimeout(() => {
+        handleDownloadImage();
+      }, 500);
+    }
+  }, [shouldDownload, employee]);
 
   const handleDownloadImage = async () => {
     if (!cardRef.current) return;
@@ -123,6 +133,7 @@ END:VCARD
         if (isAdmin) navigate("/admin/dashboard");
       }}
     >
+      {/* Admin close */}
       {isAdmin && (
         <button
           className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
@@ -140,6 +151,7 @@ END:VCARD
         className="bg-white rounded-2xl shadow-2xl w-full max-w-sm h-[95vh] flex flex-col justify-between border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* VCard Top */}
         <div className="overflow-y-auto p-6 flex flex-col items-center bg-gradient-to-b from-white to-gray-50">
           <img
             src={employee.photoUrl}
@@ -189,6 +201,7 @@ END:VCARD
           </div>
         </div>
 
+        {/* Buttons + Footer */}
         <div className="bg-white">
           <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2 bg-white">
             {nativeSupported ? (

@@ -7,7 +7,6 @@ import {
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import html2canvas from "html2canvas";
 
 function AdminDashboard() {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -35,15 +34,8 @@ function AdminDashboard() {
     }
   };
 
-  const handleDownload = async (email: string) => {
-    const cardElement = document.getElementById(`vcard-${email}`);
-    if (!cardElement) return;
-
-    const canvas = await html2canvas(cardElement);
-    const link = document.createElement("a");
-    link.download = `${email}-vcard.png`;
-    link.href = canvas.toDataURL();
-    link.click();
+  const handleDownload = (email: string) => {
+    navigate(`/vcard/${email}?admin=true&download=true`);
   };
 
   const filtered = employees.filter((emp) =>
