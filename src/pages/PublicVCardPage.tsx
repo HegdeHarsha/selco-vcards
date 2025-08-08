@@ -142,7 +142,7 @@ END:VCARD`.trim();
       >
         {/* Top Section */}
         <div className="p-6 flex flex-col items-center text-center font-[Georgia] text-black">
-          {/* Bigger Photo */}
+          {/* Bigger Photo with thin border and spacing */}
           <img
             src={employee.photoUrl}
             alt="Employee"
@@ -150,14 +150,13 @@ END:VCARD`.trim();
             onError={(e) => {
               e.currentTarget.src = "/images/logo.png";
             }}
-            className="w-32 h-32 rounded-full object-cover border mb-4" // ⬅️ was w-24 h-24 → now w-32 h-32
+            className="w-32 h-32 rounded-full object-cover border-[1.5px] border-gray-500 mb-6" // thin border + space below
           />
 
-          {/* Bigger Name */}
-          <h2 className="text-3xl font-bold mb-1">{employee.fullName}</h2> {/* ⬅️ text-3xl */}
-
-          {/* Bigger Designation */}
-          <p className="text-xl mb-1">{employee.designation}</p> {/* ⬅️ text-xl */}
+          {/* Name & Designation */}
+          <h2 className="text-3xl font-bold mb-1">{employee.fullName}</h2>
+          <p className="text-xl mb-1">{employee.designation}</p>
+          <p className="text-lg mb-6">{employee.company}</p> {/* leave some space below */}
 
           {/* Contact Info */}
           <div className="space-y-3 text-center text-[18px]">
@@ -195,6 +194,9 @@ END:VCARD`.trim();
               </a>
             </p>
           </div>
+
+          {/* Floral separator line */}
+          <div className="w-40 border-t border-dotted border-gray-400 mb-6"></div>
 
           {/* Bigger QR Code */}
           <div className="mt-8 text-center">
