@@ -158,6 +158,7 @@ END:VCARD`.trim();
           <p className="text-xl mb-1">{employee.designation}</p>
           {/* leave some space below */}
           {/* leave some space below */}
+          <br></br>
 
           {/* Contact Info */}
           <div className="space-y-3 text-center text-[18px]">
@@ -197,6 +198,7 @@ END:VCARD`.trim();
           </div>
 
           {/* Floral separator line */}
+          <br></br>
           {/* leave some space below */}
           <div className="w-40 border-t border-dotted border-gray-400 mb-6"></div>
 
