@@ -148,11 +148,19 @@ END:VCARD
 
       <div
         ref={cardRef}
-        className="bg-gradient-to-b from-orange-400 to-orange-500 rounded-2xl shadow-2xl w-full max-w-sm flex flex-col justify-between border border-gray-300 overflow-hidden text-center font-[Georgia]"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col justify-between border border-gray-300 overflow-hidden text-center font-[Georgia]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Download Target */}
-        <div id="downloadTarget" className="p-6 flex flex-col items-center text-white">
+        {/* 🔶 Download Target */}
+        <div
+          id="downloadTarget"
+          className="p-6 flex flex-col items-center text-white"
+          style={{
+            backgroundImage: "linear-gradient(to bottom, #f97316, #fb923c)",
+            borderRadius: "1rem",
+            width: "100%",
+          }}
+        >
           <img
             src={employee.photoUrl}
             alt="Employee"
