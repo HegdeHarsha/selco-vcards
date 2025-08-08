@@ -156,7 +156,8 @@ END:VCARD`.trim();
           {/* Name & Designation */}
           <h2 className="text-3xl font-bold mb-1">{employee.fullName}</h2>
           <p className="text-xl mb-1">{employee.designation}</p>
-          <p className="text-lg mb-6">{employee.company}</p> {/* leave some space below */}
+          {/* leave some space below */}
+          {/* leave some space below */}
 
           {/* Contact Info */}
           <div className="space-y-3 text-center text-[18px]">
@@ -196,6 +197,7 @@ END:VCARD`.trim();
           </div>
 
           {/* Floral separator line */}
+          {/* leave some space below */}
           <div className="w-40 border-t border-dotted border-gray-400 mb-6"></div>
 
           {/* Bigger QR Code */}
