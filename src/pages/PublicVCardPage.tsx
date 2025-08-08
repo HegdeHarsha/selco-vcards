@@ -4,6 +4,7 @@ import html2canvas from "html2canvas";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { Phone, Mail, MapPin } from "lucide-react";
 
 interface Employee {
   fullName: string;
@@ -24,7 +25,7 @@ function PublicVCardPage() {
   const shouldDownload = searchParams.get("download") === "true";
 
   const [employee, setEmployee] = useState<Employee | null>(null);
-  const downloadRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,24 +50,23 @@ function PublicVCardPage() {
   }, [shouldDownload, employee]);
 
   const handleDownloadImage = async () => {
-    if (!downloadRef.current) return;
+    if (!cardRef.current) return;
 
-    // Wait for all images to load
-    const images = downloadRef.current.querySelectorAll("img");
+    const images = cardRef.current.querySelectorAll("img");
     await Promise.all(
-      Array.from(images).map((img) =>
-        img.complete
-          ? Promise.resolve()
-          : new Promise<void>((resolve) => {
-              img.onload = () => resolve();
-              img.onerror = () => resolve();
-            })
-      )
+      Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+      })
     );
 
-    const canvas = await html2canvas(downloadRef.current, {
+    const canvas = await html2canvas(cardRef.current, {
       useCORS: true,
       scale: 2,
+      backgroundColor: null,
     });
 
     const dataUrl = canvas.toDataURL("image/png");
@@ -123,14 +123,14 @@ END:VCARD
 
   return (
     <div
-      className="min-h-screen bg-gradient-to-b from-blue-400 to-white flex items-center justify-center p-3 relative"
+      className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-300 flex items-center justify-center p-3 relative"
       onClick={() => {
         if (isAdmin) navigate("/admin/dashboard");
       }}
     >
       {isAdmin && (
         <button
-          className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
+          className="absolute top-4 right-4 text-gray-700 hover:text-black text-2xl"
           onClick={(e) => {
             e.stopPropagation();
             navigate("/admin/dashboard");
@@ -141,19 +141,11 @@ END:VCARD
       )}
 
       <div
-        ref={downloadRef}
-        className="relative w-full max-w-sm flex flex-col items-center px-6 py-8 font-[Georgia] rounded-3xl overflow-hidden shadow-2xl"
+        ref={cardRef}
+        className="bg-orange-400 text-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col justify-between border border-gray-200 overflow-hidden font-[Georgia]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Absolute orange gradient background INSIDE the downloadable card */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            background: "linear-gradient(to bottom, #f7931e, #ffffff)",
-          }}
-        ></div>
-
-        <div className="relative z-10 flex flex-col items-center w-full">
+        <div className="overflow-y-auto p-6 flex flex-col items-center text-center">
           <img
             src={employee.photoUrl}
             alt="Employee"
@@ -161,35 +153,35 @@ END:VCARD
             onError={(e) => {
               e.currentTarget.src = "/images/logo.png";
             }}
-            className="w-24 h-24 rounded-full object-cover border-2 border-gray-300 shadow mb-4"
+            className="w-24 h-24 rounded-full object-cover border-2 border-white mb-3"
           />
-          <h2 className="text-xl font-bold text-gray-900 mb-1 text-center">
-            {employee.fullName}
-          </h2>
-          <p className="text-sm text-gray-700">{employee.designation}</p>
-          <p className="text-sm text-gray-600 mb-4">{employee.company}</p>
+          <h2 className="text-2xl font-bold">{employee.fullName}</h2>
+          <p className="text-sm">{employee.designation}</p>
+          <p className="text-sm">{employee.company}</p>
 
-          <div className="text-sm text-gray-800 space-y-2 text-center">
-            <p>
-              📞{" "}
-              <a href={`tel:${employee.phone}`} className="text-blue-600 underline">
+          <div className="text-sm mt-4 space-y-2">
+            <p className="flex items-center justify-center gap-2">
+              <Phone size={16} />
+              <a href={`tel:${employee.phone}`} className="underline">
                 {employee.phone}
               </a>
             </p>
-            <p>
-              ✉️{" "}
-              <a href={`mailto:${employee.email}`} className="text-blue-600 underline">
+            <p className="flex items-center justify-center gap-2">
+              <Mail size={16} />
+              <a href={`mailto:${employee.email}`} className="underline">
                 {employee.email}
               </a>
             </p>
-            <p>📍 {employee.address}</p>
+            <p className="flex items-center justify-center gap-2">
+              <MapPin size={16} />
+              <span>{employee.address}</span>
+            </p>
             <p>
-              🌐{" "}
               <a
                 href={employee.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 underline"
+                className="underline"
               >
                 {employee.website}
               </a>
@@ -203,25 +195,48 @@ END:VCARD
               includeMargin={true}
               className="mx-auto"
             />
-            <p className="text-xs text-gray-500 mt-2">Scan to open this card</p>
+            <p className="text-xs text-white mt-2">Scan to open this card</p>
           </div>
         </div>
-      </div>
 
-      {/* Buttons below the card (NOT included in PNG) */}
-      <div className="absolute bottom-4 flex flex-col sm:flex-row gap-2 w-full max-w-sm">
-        <button
-          onClick={handleSaveContact}
-          className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-        >
-          Save Contact
-        </button>
-        <button
-          onClick={handleDownloadImage}
-          className="w-full px-4 py-2 bg-gray-700 text-white text-sm rounded hover:bg-gray-800"
-        >
-          Download as PNG
-        </button>
+        <div className="bg-orange-500 px-4 py-4 flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={handleSaveContact}
+            className="w-full px-4 py-2 bg-white text-orange-700 text-sm font-semibold rounded hover:bg-gray-100"
+          >
+            Save Contact
+          </button>
+          <button
+            onClick={handleDownloadImage}
+            className="w-full px-4 py-2 bg-white text-orange-700 text-sm font-semibold rounded hover:bg-gray-100"
+          >
+            Download as PNG
+          </button>
+        </div>
+
+        <div className="bg-orange-600 text-white text-xs text-center py-3 leading-tight border-t border-orange-700">
+          <div className="flex items-center justify-center gap-2">
+            <img src="/images/logo.png" alt="SELCO Logo" className="h-5 w-5 object-contain" />
+            <div>
+              <p>SELCO Solar Light Pvt Ltd</p>
+              <p>
+                <a href="mailto:selco@selco-india.com" className="underline">
+                  selco@selco-india.com
+                </a>
+              </p>
+              <p>
+                <a
+                  href="https://www.selco-india.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  www.selco-india.com
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
