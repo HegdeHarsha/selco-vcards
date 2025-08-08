@@ -29,10 +29,8 @@ function PublicVCardPage() {
   useEffect(() => {
     const fetchData = async () => {
       if (!email) return;
-
       const q = query(collection(db, "employees"), where("email", "==", email));
       const snapshot = await getDocs(q);
-
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data() as Employee;
         setEmployee(data);
@@ -47,28 +45,31 @@ function PublicVCardPage() {
   }, [email]);
 
   const handleDownloadImage = async () => {
-  if (!cardRef.current) return;
+    if (!cardRef.current) return;
 
-  const imageEl = cardRef.current.querySelector("img");
+    // Wait for all images inside card to load
+    const images = cardRef.current.querySelectorAll("img");
+    await Promise.all(
+      Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+      })
+    );
 
-  if (imageEl && !imageEl.complete) {
-    await new Promise<void>((resolve) => {
-      imageEl.onload = () => resolve();
-      imageEl.onerror = () => resolve();
+    const canvas = await html2canvas(cardRef.current, {
+      useCORS: true,
+      scale: 2,
     });
-  }
 
-  const canvas = await html2canvas(cardRef.current, {
-    useCORS: true, // ensures CORS images are captured correctly
-    scale: 2,      // higher quality
-  });
-
-  const dataUrl = canvas.toDataURL("image/png");
-  const link = document.createElement("a");
-  link.href = dataUrl;
-  link.download = `${employee?.fullName || "vcard"}.png`;
-  link.click();
-};
+    const dataUrl = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = `${employee?.fullName || "vcard"}.png`;
+    link.click();
+  };
 
   const handleSaveNativeContact = async () => {
     if (!employee || !nativeSupported) return;
@@ -122,7 +123,6 @@ END:VCARD
         if (isAdmin) navigate("/admin/dashboard");
       }}
     >
-      {/* Admin Close Button */}
       {isAdmin && (
         <button
           className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
@@ -135,17 +135,16 @@ END:VCARD
         </button>
       )}
 
-      {/* VCard Content */}
       <div
         ref={cardRef}
         className="bg-white rounded-2xl shadow-2xl w-full max-w-sm h-[95vh] flex flex-col justify-between border border-gray-300 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Main Body */}
         <div className="overflow-y-auto p-6 flex flex-col items-center bg-gradient-to-b from-white to-gray-50">
           <img
             src={employee.photoUrl}
             alt="Employee"
+            crossOrigin="anonymous"
             onError={(e) => {
               e.currentTarget.src = "/images/logo.png";
             }}
@@ -190,7 +189,6 @@ END:VCARD
           </div>
         </div>
 
-        {/* Buttons + Footer */}
         <div className="bg-white">
           <div className="border-t px-4 py-4 flex flex-col sm:flex-row gap-2 bg-white">
             {nativeSupported ? (
@@ -216,10 +214,8 @@ END:VCARD
             </button>
           </div>
 
-          {/* Divider */}
           <div className="border-t border-gray-300 my-2"></div>
 
-          {/* Footer with Logo */}
           <div className="flex items-center justify-center gap-2 text-[11px] text-gray-500 text-center leading-tight pb-3">
             <img
               src="/images/logo.png"
