@@ -1,42 +1,50 @@
-import { useEffect, useState } from "react";
+// src/pages/AdminDashboard.tsx
+import { useEffect, useState, useMemo } from "react";
 import { db, auth } from "../firebase";
-import {
-  collection,
-  getDocs,
-  QuerySnapshot,
-} from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 
+interface Employee {
+  id?: string;
+  fullName?: string;
+  designation?: string;
+  email?: string;
+  photoUrl?: string;
+  phone?: string;
+  address?: string;
+  website?: string;
+  company?: string;
+  [k: string]: any;
+}
+
 function AdminDashboard() {
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchEmail, setSearchEmail] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchEmployees();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchEmployees = async () => {
-    const snapshot: QuerySnapshot = await getDocs(collection(db, "employees"));
-    const list = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    try {
+      const snap = await getDocs(collection(db, "employees"));
+      const list: Employee[] = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
 
-    setEmployees(list);
+      // sort alphabetically by fullName (case-insensitive, trimmed)
+      list.sort((a, b) =>
+        String(a.fullName ?? "")
+          .trim()
+          .localeCompare(String(b.fullName ?? "").trim(), undefined, { sensitivity: "base" })
+      );
+
+      setEmployees(list);
+    } catch (err) {
+      console.error("Failed to fetch employees:", err);
+    }
   };
-
-
-
-  const filtered = employees
-    .filter((emp) =>
-      emp.email?.toLowerCase().includes(searchEmail.toLowerCase())
-    )
-    .sort((a, b) =>
-      (a.fullName || "").toLowerCase().localeCompare((b.fullName || "").toLowerCase())
-    );
-
 
   const handleLogout = async () => {
     const confirmed = confirm("Are you sure you want to logout?");
@@ -46,31 +54,45 @@ function AdminDashboard() {
     }
   };
 
+  // Download should use the vcard route which handles image capture/download
   const handleDownload = (email: string) => {
-    navigate(`/vcard/${email}?admin=true&download=true`);
+    navigate(`/vcard/${encodeURIComponent(email)}?admin=true&download=true`);
   };
 
-  const filtered = employees.filter((emp) =>
-    emp.email?.toLowerCase().includes(searchEmail.toLowerCase())
-  );
+  // Filter + keep sorted order
+  const filtered = useMemo(() => {
+    const q = (searchEmail || "").trim().toLowerCase();
+    const result = employees.filter((emp) => {
+      const email = String(emp.email ?? "").toLowerCase();
+      const name = String(emp.fullName ?? "").toLowerCase();
+      // search by email OR name; if empty query, everything passes
+      return q === "" || email.includes(q) || name.includes(q);
+    });
+
+    // keep alphabetical sort by fullName
+    result.sort((a, b) =>
+      String(a.fullName ?? "")
+        .trim()
+        .localeCompare(String(b.fullName ?? "").trim(), undefined, { sensitivity: "base" })
+    );
+
+    return result;
+  }, [employees, searchEmail]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-800">
       {/* Header */}
-      <header className="bg-white shadow px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+      <header className="bg-white shadow px-6 py-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <img
-            src="/images/logo.png"
-            alt="SELCO Logo"
-            className="h-8 w-8 object-contain"
-          />
+          <img src="/images/logo.png" alt="SELCO Logo" className="h-8 w-8 object-contain" />
           <h1 className="text-xl font-bold">SELCO Solar Light Pvt Ltd</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-3 flex-grow justify-end">
+
+        <div className="flex items-center gap-3">
           <input
             type="text"
-            placeholder="Search by email"
-            className="p-2 border rounded text-sm w-full sm:w-64"
+            placeholder="Search by name or email"
+            className="p-2 border rounded text-sm w-80"
             value={searchEmail}
             onChange={(e) => setSearchEmail(e.target.value)}
           />
@@ -112,7 +134,7 @@ function AdminDashboard() {
               <div
                 key={emp.id}
                 id={`vcard-${emp.email}`}
-                onClick={() => navigate(`/vcard/${emp.email}?admin=true`)}
+                onClick={() => navigate(`/vcard/${encodeURIComponent(String(emp.email))}?admin=true`)}
                 className="bg-white rounded-lg shadow hover:shadow-md p-4 flex flex-col items-center text-center transition-shadow cursor-pointer"
               >
                 <img
@@ -125,10 +147,7 @@ function AdminDashboard() {
                 <p className="text-sm text-blue-600 mb-4">{emp.email}</p>
 
                 {/* Buttons inside card */}
-                <div
-                  className="flex flex-wrap justify-center gap-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <div className="flex flex-wrap justify-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <button
                     className="px-4 py-1 text-sm bg-sky-600 text-white rounded hover:bg-sky-700"
                     onClick={() => navigate(`/admin/edit/${emp.id}`)}
@@ -137,7 +156,7 @@ function AdminDashboard() {
                   </button>
                   <button
                     className="px-4 py-1 text-sm bg-neutral-600 text-white rounded hover:bg-neutral-700"
-                    onClick={() => handleDownload(emp.email)}
+                    onClick={() => handleDownload(String(emp.email))}
                   >
                     Download
                   </button>
