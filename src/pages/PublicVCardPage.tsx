@@ -198,7 +198,7 @@ END:VCARD`.trim();
           </div>
 
           {/* Floral separator line */}
-          <br></br>
+      
           <div className="w-40 border-t border-dotted border-gray-400 mb-6"></div>
 
           {/* Bigger QR Code */}
