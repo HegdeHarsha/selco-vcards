@@ -140,9 +140,11 @@ END:VCARD`.trim();
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Section */}
-        <div className="p-6 flex flex-col items-center text-center font-[Georgia] text-black">
-          {/* Bigger Photo with thin border and spacing */}
+        <div
+          className="p-5 flex flex-col items-center text-center font-[Georgia] text-black h-full justify-start"
+          style={{ maxHeight: "100vh" }}
+        >
+          {/* Bigger Photo with thin border */}
           <img
             src={employee.photoUrl}
             alt="Employee"
@@ -150,35 +152,24 @@ END:VCARD`.trim();
             onError={(e) => {
               e.currentTarget.src = "/images/logo.png";
             }}
-            className="w-32 h-32 rounded-full object-cover border-[1.5px] border-gray-500 mb-6" // thin border + space below
+            className="w-28 h-28 rounded-full object-cover border border-gray-500 mb-3"
           />
 
           {/* Name & Designation */}
-          <h2 className="text-3xl font-bold mb-1">{employee.fullName}</h2>
-          <p className="text-xl mb-1">{employee.designation}</p>
-          {/* leave some space below */}
-          {/* leave some space below */}
-          <br></br>
+          <h2 className="text-2xl font-bold mb-1">{employee.fullName}</h2>
+          <p className="text-lg mb-1">{employee.designation}</p>
 
           {/* Contact Info */}
-          <div className="space-y-3 text-center text-[18px]">
+          <div className="space-y-2 text-center text-[16px] mb-3">
             <p>
               📞{" "}
-              <a
-                href={`tel:${employee.phone}`}
-                className="text-blue-700 hover:text-blue-900"
-                style={{ textDecoration: "none" }}
-              >
+              <a href={`tel:${employee.phone}`} className="text-blue-700 hover:text-blue-900" style={{ textDecoration: "none" }}>
                 {employee.phone}
               </a>
             </p>
             <p>
               📧{" "}
-              <a
-                href={`mailto:${employee.email}`}
-                className="text-blue-700 hover:text-blue-900"
-                style={{ textDecoration: "none" }}
-              >
+              <a href={`mailto:${employee.email}`} className="text-blue-700 hover:text-blue-900" style={{ textDecoration: "none" }}>
                 {employee.email}
               </a>
             </p>
@@ -198,20 +189,20 @@ END:VCARD`.trim();
           </div>
 
           {/* Floral separator line */}
-      
-          <div className="w-40 border-t border-dotted border-gray-400 mb-6"></div>
+          <div className="w-32 border-t border-dotted border-gray-400 mb-2"></div>
 
-          {/* Bigger QR Code */}
-          <div className="mt-8 text-center">
+          {/* Bigger QR Code - Closer to contact details */}
+          <div className="text-center">
             <QRCodeCanvas
               value={window.location.href}
-              size={130} // increased from 100 to 140
+              size={130}
               includeMargin={true}
               className="mx-auto"
             />
-            <p className="text-base text-gray-700 mt-3">Scan to open this card</p> {/* ⬅️ text-base */}
+            <p className="text-sm text-gray-700 mt-1">Scan to open this card</p>
           </div>
         </div>
+
 
         {/* Footer */}
         <div className="bg-white w-full">
