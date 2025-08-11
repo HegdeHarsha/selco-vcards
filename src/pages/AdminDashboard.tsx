@@ -24,11 +24,19 @@ function AdminDashboard() {
       ...doc.data(),
     }));
 
-    // Sort alphabetically by fullName (case-insensitive)
-    list.sort((a, b) => a.fullName.localeCompare(b.fullName, undefined, { sensitivity: "base" }));
-
     setEmployees(list);
   };
+
+
+
+  const filtered = employees
+    .filter((emp) =>
+      emp.email?.toLowerCase().includes(searchEmail.toLowerCase())
+    )
+    .sort((a, b) =>
+      (a.fullName || "").toLowerCase().localeCompare((b.fullName || "").toLowerCase())
+    );
+
 
   const handleLogout = async () => {
     const confirmed = confirm("Are you sure you want to logout?");
