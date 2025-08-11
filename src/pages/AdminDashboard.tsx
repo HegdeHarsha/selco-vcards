@@ -18,13 +18,17 @@ function AdminDashboard() {
   }, []);
 
   const fetchEmployees = async () => {
-    const snapshot: QuerySnapshot = await getDocs(collection(db, "employees"));
-    const list = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    setEmployees(list);
-  };
+  const snapshot: QuerySnapshot = await getDocs(collection(db, "employees"));
+  const list = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // Sort alphabetically by fullName (case-insensitive)
+  list.sort((a, b) => a.fullName.localeCompare(b.fullName, undefined, { sensitivity: "base" }));
+
+  setEmployees(list);
+};
 
   const handleLogout = async () => {
     const confirmed = confirm("Are you sure you want to logout?");
